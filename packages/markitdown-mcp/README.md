@@ -44,6 +44,28 @@ To run the MCP server, using SSE use the following command:
 markitdown-mcp --sse --host 127.0.0.1 --port 3001
 ```
 
+### Running from Source (for Development)
+
+If you want to run the server directly from the source code (e.g., for development or testing local changes):
+
+1.  First, clone the main MarkItDown repository if you haven't already:
+    ```bash
+    git clone https://github.com/microsoft/markitdown.git
+    cd markitdown/packages/markitdown-mcp
+    ```
+    (If you have already cloned and are at the root of the `markitdown` repository, just `cd packages/markitdown-mcp`)
+
+2.  Then, run the server using the Python module:
+    ```bash
+    python -m markitdown_mcp --sse --host 127.0.0.1 --port 3001
+    ```
+    Or for STDIO mode:
+    ```bash
+    python -m markitdown_mcp
+    ```
+
+This starts the MCP server. Clients can then connect to it and send requests to the `convert_to_markdown` tool as shown in the JSON RPC example earlier in this README (including the `prefix` parameter if needed).
+
 ## Running in Docker
 
 To run `markitdown-mcp` in Docker, build the Docker image using the provided Dockerfile:
