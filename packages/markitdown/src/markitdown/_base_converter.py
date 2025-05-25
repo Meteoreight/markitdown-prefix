@@ -1,4 +1,7 @@
-from typing import Any, BinaryIO, Optional
+import os
+import tempfile
+from warnings import warn
+from typing import Any, Union, BinaryIO, Optional, List
 from ._stream_info import StreamInfo
 
 

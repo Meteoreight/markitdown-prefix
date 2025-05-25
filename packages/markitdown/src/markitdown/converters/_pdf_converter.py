@@ -4,6 +4,7 @@ import io
 from typing import BinaryIO, Any
 
 
+from ._html_converter import HtmlConverter
 from .._base_converter import DocumentConverter, DocumentConverterResult
 from .._stream_info import StreamInfo
 from .._exceptions import MissingDependencyException, MISSING_DEPENDENCY_MESSAGE

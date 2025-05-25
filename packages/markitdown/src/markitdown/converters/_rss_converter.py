@@ -1,5 +1,4 @@
-from defusedxml import minidom
-from xml.dom.minidom import Document, Element
+from xml.dom import minidom
 from typing import BinaryIO, Any, Union
 from bs4 import BeautifulSoup
 
@@ -98,7 +97,7 @@ class RssConverter(DocumentConverter):
         else:
             raise ValueError("Unknown feed type")
 
-    def _parse_atom_type(self, doc: Document) -> DocumentConverterResult:
+    def _parse_atom_type(self, doc: minidom.Document) -> DocumentConverterResult:
         """Parse the type of an Atom feed.
 
         Returns None if the feed type is not recognized or something goes wrong.
@@ -130,7 +129,7 @@ class RssConverter(DocumentConverter):
             title=title,
         )
 
-    def _parse_rss_type(self, doc: Document) -> DocumentConverterResult:
+    def _parse_rss_type(self, doc: minidom.Document) -> DocumentConverterResult:
         """Parse the type of an RSS feed.
 
         Returns None if the feed type is not recognized or something goes wrong.
@@ -177,7 +176,7 @@ class RssConverter(DocumentConverter):
             return content
 
     def _get_data_by_tag_name(
-        self, element: Element, tag_name: str
+        self, element: minidom.Element, tag_name: str
     ) -> Union[str, None]:
         """Get data from first child element with the given tag name.
         Returns None when no such element is found.

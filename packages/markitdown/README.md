@@ -29,6 +29,15 @@ pip install -e packages/markitdown[all]
 markitdown path-to-file.pdf > document.md
 ```
 
+You can also use various optional arguments. For example, to prepend a prefix to the input filename:
+
+```bash
+markitdown --prefix "https://example.com/docs/" mypage.html
+```
+This would attempt to process "https://example.com/docs/mypage.html". The `--prefix` argument is only used when a filename is provided on the command line (not when reading from stdin).
+
+For a full list of command-line arguments, run `markitdown --help`.
+
 ### Python API
 
 ```python

@@ -1,12 +1,11 @@
 import os
 import zipfile
-from defusedxml import minidom
-from xml.dom.minidom import Document
+import xml.dom.minidom as minidom
 
 from typing import BinaryIO, Any, Dict, List
 
 from ._html_converter import HtmlConverter
-from .._base_converter import DocumentConverterResult
+from .._base_converter import DocumentConverter, DocumentConverterResult
 from .._stream_info import StreamInfo
 
 ACCEPTED_MIME_TYPE_PREFIXES = [
@@ -129,7 +128,7 @@ class EpubConverter(HtmlConverter):
                 markdown="\n\n".join(markdown_content), title=metadata["title"]
             )
 
-    def _get_text_from_node(self, dom: Document, tag_name: str) -> str | None:
+    def _get_text_from_node(self, dom: minidom.Document, tag_name: str) -> str | None:
         """Convenience function to extract a single occurrence of a tag (e.g., title)."""
         texts = self._get_all_texts_from_nodes(dom, tag_name)
         if len(texts) > 0:
@@ -137,7 +136,9 @@ class EpubConverter(HtmlConverter):
         else:
             return None
 
-    def _get_all_texts_from_nodes(self, dom: Document, tag_name: str) -> List[str]:
+    def _get_all_texts_from_nodes(
+        self, dom: minidom.Document, tag_name: str
+    ) -> List[str]:
         """Helper function to extract all occurrences of a tag (e.g., multiple authors)."""
         texts: List[str] = []
         for node in dom.getElementsByTagName(tag_name):

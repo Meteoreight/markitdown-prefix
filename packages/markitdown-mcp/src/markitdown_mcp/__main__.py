@@ -1,14 +1,11 @@
-import contextlib
 import sys
-from collections.abc import AsyncIterator
+from typing import Any
 from mcp.server.fastmcp import FastMCP
 from starlette.applications import Starlette
 from mcp.server.sse import SseServerTransport
 from starlette.requests import Request
 from starlette.routing import Mount, Route
-from starlette.types import Receive, Scope, Send
 from mcp.server import Server
-from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from markitdown import MarkItDown
 import uvicorn
 
@@ -26,12 +23,6 @@ async def convert_to_markdown(uri: str, prefix: str | None = None) -> str:
 
 def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlette:
     sse = SseServerTransport("/messages/")
-    session_manager = StreamableHTTPSessionManager(
-        app=mcp_server,
-        event_store=None,
-        json_response=True,
-        stateless=True,
-    )
 
     async def handle_sse(request: Request) -> None:
         async with sse.connect_sse(
@@ -45,29 +36,12 @@ def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlett
                 mcp_server.create_initialization_options(),
             )
 
-    async def handle_streamable_http(
-        scope: Scope, receive: Receive, send: Send
-    ) -> None:
-        await session_manager.handle_request(scope, receive, send)
-
-    @contextlib.asynccontextmanager
-    async def lifespan(app: Starlette) -> AsyncIterator[None]:
-        """Context manager for session manager."""
-        async with session_manager.run():
-            print("Application started with StreamableHTTP session manager!")
-            try:
-                yield
-            finally:
-                print("Application shutting down...")
-
     return Starlette(
         debug=debug,
         routes=[
             Route("/sse", endpoint=handle_sse),
-            Mount("/mcp", app=handle_streamable_http),
             Mount("/messages/", app=sse.handle_post_message),
         ],
-        lifespan=lifespan,
     )
 
 
@@ -77,17 +51,12 @@ def main():
 
     mcp_server = mcp._mcp_server
 
-    parser = argparse.ArgumentParser(description="Run a MarkItDown MCP server")
+    parser = argparse.ArgumentParser(description="Run MCP SSE-based MarkItDown server")
 
-    parser.add_argument(
-        "--http",
-        action="store_true",
-        help="Run the server with Streamable HTTP and SSE transport rather than STDIO (default: False)",
-    )
     parser.add_argument(
         "--sse",
         action="store_true",
-        help="(Deprecated) An alias for --http (default: False)",
+        help="Run the server with SSE transport rather than STDIO (default: False)",
     )
     parser.add_argument(
         "--host", default=None, help="Host to bind to (default: 127.0.0.1)"
@@ -97,15 +66,11 @@ def main():
     )
     args = parser.parse_args()
 
-    use_http = args.http or args.sse
-
-    if not use_http and (args.host or args.port):
-        parser.error(
-            "Host and port arguments are only valid when using streamable HTTP or SSE transport (see: --http)."
-        )
+    if not args.sse and (args.host or args.port):
+        parser.error("Host and port arguments are only valid when using SSE transport.")
         sys.exit(1)
 
-    if use_http:
+    if args.sse:
         starlette_app = create_starlette_app(mcp_server, debug=True)
         uvicorn.run(
             starlette_app,

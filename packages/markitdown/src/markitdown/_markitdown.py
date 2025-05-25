@@ -1,8 +1,11 @@
+import copy
 import mimetypes
 import os
 import re
 import sys
 import shutil
+import tempfile
+import warnings
 import traceback
 import io
 from dataclasses import dataclass
@@ -207,10 +210,6 @@ class MarkItDown:
                 docintel_types = kwargs.get("docintel_file_types")
                 if docintel_types is not None:
                     docintel_args["file_types"] = docintel_types
-
-                docintel_version = kwargs.get("docintel_api_version")
-                if docintel_version is not None:
-                    docintel_args["api_version"] = docintel_version
 
                 self.register_converter(
                     DocumentIntelligenceConverter(**docintel_args),
@@ -548,7 +547,7 @@ class MarkItDown:
                 # Sanity check -- make sure the cur_pos is still the same
                 assert (
                     cur_pos == file_stream.tell()
-                ), "File stream position should NOT change between guess iterations"
+                ), f"File stream position should NOT change between guess iterations"
 
                 _kwargs = {k: v for k, v in kwargs.items()}
 
@@ -615,7 +614,7 @@ class MarkItDown:
 
         # Nothing can handle it!
         raise UnsupportedFormatException(
-            "Could not convert stream to Markdown. No converter attempted a conversion, suggesting that the filetype is simply not supported."
+            f"Could not convert stream to Markdown. No converter attempted a conversion, suggesting that the filetype is simply not supported."
         )
 
     def register_page_converter(self, converter: DocumentConverter) -> None:

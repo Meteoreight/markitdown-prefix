@@ -2,6 +2,7 @@
 import os
 import time
 import pytest
+import codecs
 import base64
 
 from pathlib import Path
@@ -13,6 +14,8 @@ else:
 
 from markitdown import (
     MarkItDown,
+    UnsupportedFormatException,
+    FileConversionException,
     StreamInfo,
 )
 
@@ -200,6 +203,8 @@ def test_convert_stream_keep_data_uris(test_vector):
 
 
 if __name__ == "__main__":
+    import sys
+
     """Runs this file's tests from the command line."""
 
     # General tests
